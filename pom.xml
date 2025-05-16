@@ -73,10 +73,14 @@
   </dependencies>
 
   <build>
+
+    <sourceDirectory>src/main/java</sourceDirectory>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
         <executions>
           <execution>
             <id>default-compile</id>
@@ -87,18 +91,36 @@
             <phase>none</phase>
           </execution>
           <execution>
-            <id>compile</id>
+            <id>java-compile</id>
             <phase>compile</phase>
             <goals>
               <goal>compile</goal>
             </goals>
+            <configuration>
+              <includes>
+                <include>**/*.java</include>
+              </includes>
+            </configuration>
           </execution>
+        </executions>
+      </plugin>
+
+      <!-- Javadoc for Java files -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
           <execution>
-            <id>testCompile</id>
-            <phase>test-compile</phase>
+            <id>attach-javadocs</id>
             <goals>
-              <goal>testCompile</goal>
+              <goal>jar</goal>
             </goals>
+            <configuration>
+              <doclint>none</doclint>
+              <source>17</source>
+              <detectJavaApiLink>false</detectJavaApiLink>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -157,6 +179,7 @@
         <configuration>
           <sourceDirectories>
             <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+            <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
           </sourceDirectories>
         </configuration>
       </plugin>
