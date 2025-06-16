@@ -2,7 +2,10 @@ package io.github.lcaohoanq
 
 import java.awt.Desktop
 import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
 import java.util.*
+import kotlin.time.Duration
 
 /**
  * Utility object for launching web browsers across different platforms.
@@ -68,6 +71,37 @@ object BrowserLauncher {
                         else -> println("Unsupported operating system: $os")
                     }
                 }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    @JvmStatic
+    fun doHealthCheckThenOpenHomePage(healthCheckEndpoint: String?, urls: Any) {
+        try {
+
+            if (healthCheckEndpoint.isNullOrEmpty()) {
+                println("Health check endpoint is null or empty. Skipping health check.")
+                openHomePage(urls)
+                return
+            }
+
+            val hostname = System.getProperty("server.hostname") ?: "localhost"
+            val port = System.getProperty("server.port")?.toIntOrNull() ?: 8080
+
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create(healthCheckEndpoint ?: "http://$hostname:$port/actuator/health"))                .timeout(java.time.Duration.ofSeconds(5))
+                .GET()
+                .build()
+
+            val response = SharedRes.HTTP_CLIENT.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
+
+            if (response.statusCode() == 200) {
+                println("Health check passed. Opening home page...")
+                openHomePage(urls)
+            } else {
+                println("Health check failed with status code: ${response.statusCode()}")
             }
         } catch (e: Exception) {
             e.printStackTrace()
