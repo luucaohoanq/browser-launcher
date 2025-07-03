@@ -1,14 +1,13 @@
 package com.example.demo;
 
 import io.github.lcaohoanq.annotations.BrowserLauncher;
-import io.github.lcaohoanq.core.JavaBrowserLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Demo Spring Boot application showcasing the browser-launcher library
  * with annotation-based configuration.
- * 
+ *
  * This application will:
  * 1. Start on http://localhost:8080
  * 2. Perform a health check against http://localhost:8080/actuator/health
@@ -18,9 +17,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 @BrowserLauncher(
     urls = {
+        "https://github.com/luucaohoanq/browser-launcher",
         "http://localhost:8080",
-        "http://localhost:8080/api/demo",
-        "http://localhost:8080/actuator/health"
+    },
+    healthCheckEndpoint = "http://localhost:8080/actuator/health",
+    excludeProfiles = {
+        "docker",
+        "prod"
     }
 )
 public class DemoApplication {
@@ -30,12 +33,12 @@ public class DemoApplication {
         if (System.getProperty("spring.profiles.active") == null) {
             System.setProperty("spring.profiles.active", "dev");
         }
-        
+
         System.out.println("🚀 Starting Browser Launcher Demo Application...");
         System.out.println("📱 Server will be available at: http://localhost:8080");
         System.out.println("💡 Browser will open automatically after health check passes");
         System.out.println("🔧 Active profile: " + System.getProperty("spring.profiles.active"));
-        
+
         SpringApplication.run(DemoApplication.class, args);
     }
 }
