@@ -185,18 +185,87 @@ class BrowserLauncherProcessorTest {
         }
     }
 
+    @Test
+    void run_shouldLaunchBrowserWithValueParameter() throws Exception {
+        ApplicationArguments args = mock(ApplicationArguments.class);
+        System.setProperty("spring.profiles.active", "dev");
+        
+        try (MockedStatic<Thread> threadMock = mockStatic(Thread.class);
+             MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+            
+            Thread currentThread = mock(Thread.class);
+            threadMock.when(Thread::currentThread).thenReturn(currentThread);
+            
+            StackTraceElement mainElement = mock(StackTraceElement.class);
+            when(mainElement.getMethodName()).thenReturn("main");
+            when(mainElement.getClassName()).thenReturn(TestMainWithValueParameter.class.getName());
+            
+            StackTraceElement[] stack = {mainElement};
+            when(currentThread.getStackTrace()).thenReturn(stack);
+            
+            Desktop desktop = mock(Desktop.class);
+            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+            
+            processor.run(args);
+            
+            verify(desktop).browse(any());
+        }
+    }
+
+    @Test
+    void run_shouldLaunchBrowserWithUrlsParameter() throws Exception {
+        ApplicationArguments args = mock(ApplicationArguments.class);
+        System.setProperty("spring.profiles.active", "dev");
+        
+        try (MockedStatic<Thread> threadMock = mockStatic(Thread.class);
+             MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+            
+            Thread currentThread = mock(Thread.class);
+            threadMock.when(Thread::currentThread).thenReturn(currentThread);
+            
+            StackTraceElement mainElement = mock(StackTraceElement.class);
+            when(mainElement.getMethodName()).thenReturn("main");
+            when(mainElement.getClassName()).thenReturn(TestMainWithUrlsParameter.class.getName());
+            
+            StackTraceElement[] stack = {mainElement};
+            when(currentThread.getStackTrace()).thenReturn(stack);
+            
+            Desktop desktop = mock(Desktop.class);
+            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+            
+            processor.run(args);
+            
+            // Should be called multiple times for multiple URLs
+            verify(desktop, times(3)).browse(any());
+        }
+    }
+
     // Test classes for annotation testing
     @BrowserLauncher(url = "https://example.com")
     static class TestMainWithAnnotation {
         public static void main(String[] args) {}
     }
 
-    @BrowserLauncher(url = "https://example.com", healthCheck = "http://localhost:8080/health")
+    @BrowserLauncher(value = "https://value-example.com")
+    static class TestMainWithValueParameter {
+        public static void main(String[] args) {}
+    }
+
+    @BrowserLauncher(urls = {"https://url1.com", "https://url2.com", "https://url3.com"})
+    static class TestMainWithUrlsParameter {
+        public static void main(String[] args) {}
+    }
+
+    @BrowserLauncher(url = "https://example.com", healthCheckEndpoint = "http://localhost:8080/health")
     static class TestMainWithHealthCheck {
         public static void main(String[] args) {}
     }
 
-    @BrowserLauncher(url = "https://example.com", healthCheck = "http://localhost:8080/health", async = true)
+    @BrowserLauncher(url = "https://example.com", healthCheckEndpoint = "http://localhost:8080/health", async = true)
     static class TestMainWithAsyncHealthCheck {
         public static void main(String[] args) {}
     }

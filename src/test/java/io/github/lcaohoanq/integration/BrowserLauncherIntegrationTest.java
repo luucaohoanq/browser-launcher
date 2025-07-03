@@ -172,7 +172,7 @@ class BrowserLauncherIntegrationTest {
     // Test applications for integration testing
     @BrowserLauncher(
         url = "https://example.com",
-        healthCheck = "http://localhost:8087/health",
+        healthCheckEndpoint = "http://localhost:8087/health",
         excludeProfiles = {"docker", "test", "zimaos"}
     )
     static class TestAppWithHealthCheck {
@@ -181,7 +181,7 @@ class BrowserLauncherIntegrationTest {
 
     @BrowserLauncher(
         url = "https://example.com",
-        healthCheck = "http://localhost:8087/health",
+        healthCheckEndpoint = "http://localhost:8087/health",
         excludeProfiles = {"docker", "test", "zimaos"},
         async = true
     )

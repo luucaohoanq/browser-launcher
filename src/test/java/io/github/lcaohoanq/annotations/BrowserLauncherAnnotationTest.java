@@ -32,8 +32,10 @@ class BrowserLauncherAnnotationTest {
             .getAnnotation(BrowserLauncher.class);
         
         assertNotNull(annotation);
+        assertEquals("", annotation.value());
         assertEquals("https://example.com", annotation.url());
-        assertEquals("", annotation.healthCheck());
+        assertArrayEquals(new String[]{}, annotation.urls());
+        assertEquals("", annotation.healthCheckEndpoint());
         assertArrayEquals(new String[]{"docker", "test", "zimaos"}, annotation.excludeProfiles());
         assertFalse(annotation.async());
     }
@@ -44,10 +46,34 @@ class BrowserLauncherAnnotationTest {
             .getAnnotation(BrowserLauncher.class);
         
         assertNotNull(annotation);
+        assertEquals("", annotation.value());
         assertEquals("https://custom.com", annotation.url());
-        assertEquals("http://localhost:8080/health", annotation.healthCheck());
+        assertArrayEquals(new String[]{}, annotation.urls());
+        assertEquals("http://localhost:8080/health", annotation.healthCheckEndpoint());
         assertArrayEquals(new String[]{"prod", "staging"}, annotation.excludeProfiles());
         assertTrue(annotation.async());
+    }
+
+    @Test
+    void annotation_shouldSupportValueParameter() throws Exception {
+        BrowserLauncher annotation = TestClassWithValueParameter.class
+            .getAnnotation(BrowserLauncher.class);
+        
+        assertNotNull(annotation);
+        assertEquals("https://value.com", annotation.value());
+        assertEquals("", annotation.url());
+        assertArrayEquals(new String[]{}, annotation.urls());
+    }
+
+    @Test
+    void annotation_shouldSupportUrlsParameter() throws Exception {
+        BrowserLauncher annotation = TestClassWithUrlsParameter.class
+            .getAnnotation(BrowserLauncher.class);
+        
+        assertNotNull(annotation);
+        assertEquals("", annotation.value());
+        assertEquals("", annotation.url());
+        assertArrayEquals(new String[]{"https://url1.com", "https://url2.com", "https://url3.com"}, annotation.urls());
     }
 
     @Test
@@ -56,8 +82,10 @@ class BrowserLauncherAnnotationTest {
             .getAnnotation(BrowserLauncher.class);
         
         assertNotNull(annotation);
+        assertEquals("", annotation.value());
         assertEquals("https://example.com", annotation.url());
-        assertEquals("", annotation.healthCheck());
+        assertArrayEquals(new String[]{}, annotation.urls());
+        assertEquals("", annotation.healthCheckEndpoint());
         assertArrayEquals(new String[]{}, annotation.excludeProfiles());
         assertFalse(annotation.async());
     }
@@ -69,11 +97,19 @@ class BrowserLauncherAnnotationTest {
 
     @BrowserLauncher(
         url = "https://custom.com",
-        healthCheck = "http://localhost:8080/health",
+        healthCheckEndpoint = "http://localhost:8080/health",
         excludeProfiles = {"prod", "staging"},
         async = true
     )
     static class TestClassWithCustomAnnotation {
+    }
+
+    @BrowserLauncher(value = "https://value.com")
+    static class TestClassWithValueParameter {
+    }
+
+    @BrowserLauncher(urls = {"https://url1.com", "https://url2.com", "https://url3.com"})
+    static class TestClassWithUrlsParameter {
     }
 
     @BrowserLauncher(
