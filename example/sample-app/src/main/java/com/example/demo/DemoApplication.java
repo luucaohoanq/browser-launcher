@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import io.github.lcaohoanq.annotations.BrowserLauncher;
+import io.github.lcaohoanq.core.JavaBrowserLauncher;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -20,10 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         "http://localhost:8080",
         "http://localhost:8080/api/demo",
         "http://localhost:8080/actuator/health"
-    },
-    healthCheckEndpoint = "http://localhost:8080/actuator/health",
-    async = true,
-    excludeProfiles = {"test", "prod", "ci"}
+    }
 )
 public class DemoApplication {
 
