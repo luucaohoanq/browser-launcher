@@ -138,7 +138,7 @@ The CI pipeline automatically runs on:
 2. **Check Actions tab** in GitHub to see pipeline execution
 3. **Review test reports** in PR comments and Actions summary
 4. **Monitor coverage** via Codecov integration
-5. **Create releases** by pushing tags (v1.0.0, v2.0.1, etc.)
+5. **Create releases** by pushing tags (v1.0.0, v2.1.1, etc.)
 
 ## 🎉 Results
 
