@@ -32,28 +32,38 @@ class BrowserLauncherAnnotationValidationTest {
     @Test
     void annotation_shouldHaveRequiredMethods() throws NoSuchMethodException {
         // Test that all required methods exist
+        Method valueMethod = BrowserLauncher.class.getDeclaredMethod("value");
         Method urlMethod = BrowserLauncher.class.getDeclaredMethod("url");
-        Method healthCheckMethod = BrowserLauncher.class.getDeclaredMethod("healthCheck");
+        Method urlsMethod = BrowserLauncher.class.getDeclaredMethod("urls");
+        Method healthCheckEndpointMethod = BrowserLauncher.class.getDeclaredMethod("healthCheckEndpoint");
         Method excludeProfilesMethod = BrowserLauncher.class.getDeclaredMethod("excludeProfiles");
         Method asyncMethod = BrowserLauncher.class.getDeclaredMethod("async");
 
+        assertNotNull(valueMethod, "value() method should exist");
         assertNotNull(urlMethod, "url() method should exist");
-        assertNotNull(healthCheckMethod, "healthCheck() method should exist");
+        assertNotNull(urlsMethod, "urls() method should exist");
+        assertNotNull(healthCheckEndpointMethod, "healthCheckEndpoint() method should exist");
         assertNotNull(excludeProfilesMethod, "excludeProfiles() method should exist");
         assertNotNull(asyncMethod, "async() method should exist");
     }
 
     @Test
     void annotation_shouldHaveCorrectReturnTypes() throws NoSuchMethodException {
+        Method valueMethod = BrowserLauncher.class.getDeclaredMethod("value");
         Method urlMethod = BrowserLauncher.class.getDeclaredMethod("url");
-        Method healthCheckMethod = BrowserLauncher.class.getDeclaredMethod("healthCheck");
+        Method urlsMethod = BrowserLauncher.class.getDeclaredMethod("urls");
+        Method healthCheckEndpointMethod = BrowserLauncher.class.getDeclaredMethod("healthCheckEndpoint");
         Method excludeProfilesMethod = BrowserLauncher.class.getDeclaredMethod("excludeProfiles");
         Method asyncMethod = BrowserLauncher.class.getDeclaredMethod("async");
 
+        assertEquals(String.class, valueMethod.getReturnType(), 
+                    "value() should return String");
         assertEquals(String.class, urlMethod.getReturnType(), 
                     "url() should return String");
-        assertEquals(String.class, healthCheckMethod.getReturnType(), 
-                    "healthCheck() should return String");
+        assertEquals(String[].class, urlsMethod.getReturnType(), 
+                    "urls() should return String[]");
+        assertEquals(String.class, healthCheckEndpointMethod.getReturnType(), 
+                    "healthCheckEndpoint() should return String");
         assertEquals(String[].class, excludeProfilesMethod.getReturnType(), 
                     "excludeProfiles() should return String[]");
         assertEquals(boolean.class, asyncMethod.getReturnType(), 
@@ -62,13 +72,22 @@ class BrowserLauncherAnnotationValidationTest {
 
     @Test
     void annotation_shouldHaveCorrectDefaultValues() throws Exception {
-        Method healthCheckMethod = BrowserLauncher.class.getDeclaredMethod("healthCheck");
+        Method valueMethod = BrowserLauncher.class.getDeclaredMethod("value");
+        Method urlMethod = BrowserLauncher.class.getDeclaredMethod("url");
+        Method urlsMethod = BrowserLauncher.class.getDeclaredMethod("urls");
+        Method healthCheckEndpointMethod = BrowserLauncher.class.getDeclaredMethod("healthCheckEndpoint");
         Method excludeProfilesMethod = BrowserLauncher.class.getDeclaredMethod("excludeProfiles");
         Method asyncMethod = BrowserLauncher.class.getDeclaredMethod("async");
 
         // Check default values
-        assertEquals("", healthCheckMethod.getDefaultValue(), 
-                    "healthCheck() should have empty string as default");
+        assertEquals("", valueMethod.getDefaultValue(), 
+                    "value() should have empty string as default");
+        assertEquals("", urlMethod.getDefaultValue(), 
+                    "url() should have empty string as default");
+        assertArrayEquals(new String[]{}, (String[]) urlsMethod.getDefaultValue(), 
+                    "urls() should have empty array as default");
+        assertEquals("", healthCheckEndpointMethod.getDefaultValue(), 
+                    "healthCheckEndpoint() should have empty string as default");
         assertArrayEquals(new String[]{"docker", "test", "zimaos"}, 
                          (String[]) excludeProfilesMethod.getDefaultValue(), 
                          "excludeProfiles() should have correct default values");
@@ -77,10 +96,10 @@ class BrowserLauncherAnnotationValidationTest {
     }
 
     @Test
-    void annotation_urlMethodShouldNotHaveDefault() throws NoSuchMethodException {
+    void annotation_urlMethodShouldHaveEmptyStringDefault() throws NoSuchMethodException {
         Method urlMethod = BrowserLauncher.class.getDeclaredMethod("url");
-        assertNull(urlMethod.getDefaultValue(), 
-                  "url() method should not have a default value");
+        assertEquals("", urlMethod.getDefaultValue(), 
+                  "url() method should have empty string as default value");
     }
 
     @Test

@@ -261,7 +261,7 @@ class BrowserLauncherProcessorAdvancedTest {
 
     @BrowserLauncher(
         url = "https://example.com",
-        healthCheck = "http://localhost:8080/health",
+        healthCheckEndpoint = "http://localhost:8080/health",
         async = true
     )
     static class TestClassWithAsyncAnnotation {
@@ -269,7 +269,7 @@ class BrowserLauncherProcessorAdvancedTest {
 
     @BrowserLauncher(
         url = "https://example.com",
-        healthCheck = "http://localhost:8080/health",
+        healthCheckEndpoint = "http://localhost:8080/health",
         async = false
     )
     static class TestClassWithSyncHealthCheck {

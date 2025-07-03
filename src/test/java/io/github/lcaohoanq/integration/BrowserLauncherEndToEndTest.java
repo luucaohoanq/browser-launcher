@@ -291,14 +291,14 @@ class BrowserLauncherEndToEndTest {
     // Test application classes
     @BrowserLauncher(
         url = "https://example.com",
-        healthCheck = "http://localhost:8084/health"
+        healthCheckEndpoint = "http://localhost:8084/health"
     )
     static class TestAppWithHealthCheck {
     }
 
     @BrowserLauncher(
         url = "https://example.com",
-        healthCheck = "http://localhost:8084/health",
+        healthCheckEndpoint = "http://localhost:8084/health",
         async = true
     )
     static class TestAppWithAsyncHealthCheck {
