@@ -35,20 +35,20 @@ Perfect for development environments, demo applications, and any scenario where 
 <dependency>
   <groupId>io.github.lcaohoanq</groupId>
   <artifactId>brlc</artifactId>
-  <version>1.0.1</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 
 #### Gradle (Kotlin DSL)
 
 ```kotlin
-implementation("io.github.lcaohoanq:brlc:1.0.1")
+implementation("io.github.lcaohoanq:brlc:2.0.0")
 ```
 
 #### Gradle (Groovy)
 
 ```groovy
-implementation 'io.github.lcaohoanq:brlc:1.0.1'
+implementation 'io.github.lcaohoanq:brlc:2.0.0'
 ```
 
 ### 🎯 Live Demo
