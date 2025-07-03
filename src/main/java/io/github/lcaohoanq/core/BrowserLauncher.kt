@@ -1,11 +1,12 @@
-package io.github.lcaohoanq
+package io.github.lcaohoanq.core
 
+import io.github.lcaohoanq.SharedRes
 import java.awt.Desktop
 import java.net.URI
-import java.net.http.HttpClient
 import java.net.http.HttpRequest
-import java.util.*
-import kotlin.time.Duration
+import java.net.http.HttpResponse
+import java.time.Duration
+import java.util.Locale
 
 /**
  * Utility object for launching web browsers across different platforms.
@@ -40,13 +41,13 @@ object BrowserLauncher {
      */
     @JvmStatic
     fun openHomePage(urls: Any) {
-        try {
-            val urlList = when (urls) {
-                is List<*> -> urls.filterIsInstance<String>()
-                is String -> listOf(urls)
-                else -> throw IllegalArgumentException("Invalid argument type. Expected String or List<String>")
-            }
+        val urlList = when (urls) {
+            is List<*> -> urls.filterIsInstance<String>()
+            is String -> listOf(urls)
+            else -> throw IllegalArgumentException("Invalid argument type. Expected String or List<String>")
+        }
 
+        try {
             val desktop = if (Desktop.isDesktopSupported()) Desktop.getDesktop() else null
             val os = System.getProperty("os.name").lowercase(Locale.getDefault())
 
@@ -91,11 +92,12 @@ object BrowserLauncher {
             val port = System.getProperty("server.port")?.toIntOrNull() ?: 8080
 
             val request = HttpRequest.newBuilder()
-                .uri(URI.create(healthCheckEndpoint ?: "http://$hostname:$port/actuator/health"))                .timeout(java.time.Duration.ofSeconds(5))
+                .uri(URI.create(healthCheckEndpoint ?: "http://$hostname:$port/actuator/health"))                .timeout(
+                    Duration.ofSeconds(5))
                 .GET()
                 .build()
 
-            val response = SharedRes.HTTP_CLIENT.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
+            val response = SharedRes.HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString())
 
             if (response.statusCode() == 200) {
                 println("Health check passed. Opening home page...")

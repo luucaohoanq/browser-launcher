@@ -1,0 +1,82 @@
+name: Manual CI Trigger
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_profile:
+        description: "Test profile to run"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - stable
+          - ci
+      java_version:
+        description: "Java version"
+        required: true
+        default: "17"
+        type: choice
+        options:
+          - "17"
+          - "21"
+      os:
+        description: "Operating system"
+        required: true
+        default: "ubuntu-latest"
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+jobs:
+  manual-test:
+    name: Manual Test Run
+    runs-on: ${{ inputs.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ inputs.java_version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java_version }}
+          distribution: "temurin"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run tests with selected profile
+        run: |
+          if [ "${{ inputs.test_profile }}" == "all" ]; then
+            mvn clean test -B -Djava.awt.headless=true -Dmaven.test.failure.ignore=true
+          elif [ "${{ inputs.test_profile }}" == "stable" ]; then
+            mvn clean test -B -Djava.awt.headless=true -Pstable
+          elif [ "${{ inputs.test_profile }}" == "ci" ]; then
+            mvn clean test -B -Djava.awt.headless=true -Dci=true
+          fi
+        shell: bash
+
+      - name: Generate test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Manual Test Results (${{ inputs.os }}, Java ${{ inputs.java_version }}, ${{ inputs.test_profile }})
+          path: target/surefire-reports/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: manual-test-results-${{ inputs.os }}-java${{ inputs.java_version }}-${{ inputs.test_profile }}
+          path: |
+            target/surefire-reports/
+            target/site/jacoco/

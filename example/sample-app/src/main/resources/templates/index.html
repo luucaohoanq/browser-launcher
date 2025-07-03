@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser Launcher Demo</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        min-height: 100vh;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 30px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 2.5em;
+      }
+      .feature {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 10px;
+        border-left: 4px solid #4caf50;
+      }
+      .feature h3 {
+        margin-top: 0;
+        color: #4caf50;
+      }
+      .demo-links {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 30px 0;
+      }
+      .demo-link {
+        background: #4caf50;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: all 0.3s;
+      }
+      .demo-link:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+      }
+      .code-block {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px;
+        border-radius: 8px;
+        font-family: "Courier New", monospace;
+        margin: 15px 0;
+        overflow-x: auto;
+      }
+      .emoji {
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1><span class="emoji">🚀</span> Browser Launcher Demo</h1>
+
+      <div class="feature">
+        <h3><span class="emoji">✨</span> Welcome!</h3>
+        <p>
+          This page was automatically opened by the
+          <strong>browser-launcher</strong> library after a successful health
+          check!
+        </p>
+      </div>
+
+      <div class="feature">
+        <h3><span class="emoji">🔧</span> How it works</h3>
+        <p>
+          The application uses the <code>@BrowserLauncher</code> annotation to
+          automatically open browser tabs when the application starts:
+        </p>
+        <div class="code-block">
+          @BrowserLauncher(<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;urls = {"http://localhost:8080",
+          "http://localhost:8080/api/demo"},<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;healthCheckEndpoint =
+          "http://localhost:8080/actuator/health",<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;async = true,<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;excludeProfiles = {"test", "prod", "ci"}<br />
+          )
+        </div>
+      </div>
+
+      <div class="feature">
+        <h3><span class="emoji">🎯</span> Key Features</h3>
+        <ul>
+          <li>
+            <strong>Health Check Integration:</strong> Only opens browser after
+            service is ready
+          </li>
+          <li>
+            <strong>Multiple URLs:</strong> Can open multiple tabs
+            simultaneously
+          </li>
+          <li><strong>Async Operation:</strong> Non-blocking browser launch</li>
+          <li><strong>Profile Aware:</strong> Respects environment profiles</li>
+          <li>
+            <strong>Cross-Platform:</strong> Works on Windows, macOS, and Linux
+          </li>
+        </ul>
+      </div>
+
+      <div class="demo-links">
+        <a href="/api/demo" class="demo-link">
+          <span class="emoji">📊</span> API Demo
+        </a>
+        <a href="/api/status" class="demo-link">
+          <span class="emoji">💚</span> Status Check
+        </a>
+        <a href="/actuator/health" class="demo-link">
+          <span class="emoji">🏥</span> Health Endpoint
+        </a>
+      </div>
+
+      <div class="feature">
+        <h3><span class="emoji">📚</span> Learn More</h3>
+        <p>
+          Check out the
+          <a
+            href="https://github.com/luucaohoanq/browser-launcher"
+            style="color: #4caf50"
+            >browser-launcher repository</a
+          >
+          for more examples and documentation.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Add some interactive elements
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🎉 Browser Launcher Demo loaded successfully!");
+
+        // Add click animations to links
+        document.querySelectorAll(".demo-link").forEach((link) => {
+          link.addEventListener("click", function () {
+            this.style.transform = "scale(0.95)";
+            setTimeout(() => {
+              this.style.transform = "translateY(-2px)";
+            }, 100);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

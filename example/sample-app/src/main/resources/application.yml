@@ -1,0 +1,69 @@
+# Spring Boot Configuration
+spring:
+  application:
+    name: browser-launcher-demo
+  profiles:
+    active: dev
+
+# Server Configuration
+server:
+  port: 8080
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    com.example.demo: INFO
+    io.github.lcaohoanq: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.example.demo: DEBUG
+    io.github.lcaohoanq: DEBUG
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    com.example.demo: INFO
+
+---
+# Test Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+
+logging:
+  level:
+    root: WARN
