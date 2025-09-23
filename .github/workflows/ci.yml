@@ -236,6 +236,10 @@ jobs:
   publish-test-report:
     name: Publish Test Report
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
     needs: [ test, integration-tests ]
     if: always()
 
