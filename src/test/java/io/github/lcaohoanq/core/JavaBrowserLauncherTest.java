@@ -1,5 +1,13 @@
+/**
+ * Copyright (c) 2025 lcaohoanq. All rights reserved.
+ *
+ * This software is the confidential and proprietary information of lcaohoanq.
+ * You shall not disclose such confidential information and shall use it only in
+ * accordance with the terms of the license agreement you entered into with lcaohoanq.
+ */
 package io.github.lcaohoanq.core;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -18,261 +26,260 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-
 class JavaBrowserLauncherTest {
 
-    private WireMockServer wireMockServer;
-    private PrintStream originalOut;
-    private ByteArrayOutputStream outputStreamCaptor;
+  private WireMockServer wireMockServer;
+  private PrintStream originalOut;
+  private ByteArrayOutputStream outputStreamCaptor;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(8088));
-        wireMockServer.start();
-        
-        // Capture System.out for testing console output
-        originalOut = System.out;
-        outputStreamCaptor = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStreamCaptor));
+  @BeforeEach
+  void setUp() throws Exception {
+    wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().port(8088));
+    wireMockServer.start();
+
+    // Capture System.out for testing console output
+    originalOut = System.out;
+    outputStreamCaptor = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outputStreamCaptor));
+  }
+
+  @AfterEach
+  void tearDown() throws Exception {
+    wireMockServer.stop();
+    System.setOut(originalOut);
+  }
+
+  @Test
+  void openHomePage_shouldHandleSingleUrlString() throws Exception {
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+
+      JavaBrowserLauncher.openHomePage("https://example.com");
+
+      verify(desktop).browse(any());
     }
+  }
 
-    @AfterEach
-    void tearDown() throws Exception {
-        wireMockServer.stop();
-        System.setOut(originalOut);
+  @Test
+  void openHomePage_shouldHandleListOfUrls() throws Exception {
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+
+      List<String> urls = Arrays.asList("https://example.com", "https://kotlin.org");
+      JavaBrowserLauncher.openHomePage(urls);
+
+      verify(desktop, times(2)).browse(any());
     }
+  }
 
-    @Test
-    void openHomePage_shouldHandleSingleUrlString() throws Exception {
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+  @Test
+  void doHealthCheckThenOpenHomePage_shouldSkipHealthCheckWhenEndpointIsNull() throws Exception {
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-            JavaBrowserLauncher.openHomePage("https://example.com");
+      JavaBrowserLauncher.doHealthCheckThenOpenHomePage(null, "https://example.com");
 
-            verify(desktop).browse(any());
-        }
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check endpoint is null or empty. Skipping health check."));
+      verify(desktop).browse(any());
     }
+  }
 
-    @Test
-    void openHomePage_shouldHandleListOfUrls() throws Exception {
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+  @Test
+  void doHealthCheckThenOpenHomePage_shouldSkipHealthCheckWhenEndpointIsEmpty() throws Exception {
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-            List<String> urls = Arrays.asList("https://example.com", "https://kotlin.org");
-            JavaBrowserLauncher.openHomePage(urls);
+      JavaBrowserLauncher.doHealthCheckThenOpenHomePage("", "https://example.com");
 
-            verify(desktop, times(2)).browse(any());
-        }
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check endpoint is null or empty. Skipping health check."));
+      verify(desktop).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePage_shouldSkipHealthCheckWhenEndpointIsNull() throws Exception {
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+  @Test
+  void doHealthCheckThenOpenHomePage_shouldOpenBrowserWhenHealthCheckPasses() throws Exception {
+    // Setup WireMock to return 200 OK
+    wireMockServer.stubFor(
+        get(urlEqualTo("/health"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"status\":\"UP\"}")));
 
-            JavaBrowserLauncher.doHealthCheckThenOpenHomePage(null, "https://example.com");
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check endpoint is null or empty. Skipping health check."));
-            verify(desktop).browse(any());
-        }
+      JavaBrowserLauncher.doHealthCheckThenOpenHomePage(
+          "http://localhost:8088/health", "https://example.com");
+
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check passed. Opening home page..."));
+      verify(desktop).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePage_shouldSkipHealthCheckWhenEndpointIsEmpty() throws Exception {
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+  @Test
+  void doHealthCheckThenOpenHomePage_shouldNotOpenBrowserWhenHealthCheckFails() throws Exception {
+    // Setup WireMock to return 503 Service Unavailable
+    wireMockServer.stubFor(
+        get(urlEqualTo("/health"))
+            .willReturn(
+                aResponse()
+                    .withStatus(503)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"status\":\"DOWN\"}")));
 
-            JavaBrowserLauncher.doHealthCheckThenOpenHomePage("", "https://example.com");
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check endpoint is null or empty. Skipping health check."));
-            verify(desktop).browse(any());
-        }
+      JavaBrowserLauncher.doHealthCheckThenOpenHomePage(
+          "http://localhost:8088/health", "https://example.com");
+
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check failed with status code: 503"));
+      verify(desktop, never()).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePage_shouldOpenBrowserWhenHealthCheckPasses() throws Exception {
-        // Setup WireMock to return 200 OK
-        wireMockServer.stubFor(get(urlEqualTo("/health"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"status\":\"UP\"}")));
+  @Test
+  void doHealthCheckThenOpenHomePage_shouldHandleNetworkExceptions() throws Exception {
+    // Don't stub anything, so connection will fail
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+      JavaBrowserLauncher.doHealthCheckThenOpenHomePage(
+          "http://localhost:9999/health", "https://example.com");
 
-            JavaBrowserLauncher.doHealthCheckThenOpenHomePage(
-                "http://localhost:8088/health", 
-                "https://example.com"
-            );
-
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check passed. Opening home page..."));
-            verify(desktop).browse(any());
-        }
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check failed with exception:"));
+      // Should not open browser due to connection failure
+      verify(desktop, never()).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePage_shouldNotOpenBrowserWhenHealthCheckFails() throws Exception {
-        // Setup WireMock to return 503 Service Unavailable
-        wireMockServer.stubFor(get(urlEqualTo("/health"))
-            .willReturn(aResponse()
-                .withStatus(503)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"status\":\"DOWN\"}")));
+  @Test
+  void doHealthCheckThenOpenHomePageAsync_shouldSkipHealthCheckWhenEndpointIsNull()
+      throws Exception {
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+      CompletableFuture<Void> future =
+          JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(null, "https://example.com");
 
-            JavaBrowserLauncher.doHealthCheckThenOpenHomePage(
-                "http://localhost:8088/health", 
-                "https://example.com"
-            );
+      future.get(5, TimeUnit.SECONDS);
 
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check failed with status code: 503"));
-            verify(desktop, never()).browse(any());
-        }
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check endpoint is null or empty. Skipping health check."));
+      verify(desktop).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePage_shouldHandleNetworkExceptions() throws Exception {
-        // Don't stub anything, so connection will fail
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+  @Test
+  void doHealthCheckThenOpenHomePageAsync_shouldOpenBrowserWhenHealthCheckPasses()
+      throws Exception {
+    // Setup WireMock to return 200 OK
+    wireMockServer.stubFor(
+        get(urlEqualTo("/health"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"status\":\"UP\"}")));
 
-            JavaBrowserLauncher.doHealthCheckThenOpenHomePage(
-                "http://localhost:9999/health", 
-                "https://example.com"
-            );
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check failed with exception:"));
-            // Should not open browser due to connection failure
-            verify(desktop, never()).browse(any());
-        }
+      CompletableFuture<Void> future =
+          JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
+              "http://localhost:8088/health", "https://example.com");
+
+      future.get(5, TimeUnit.SECONDS);
+
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check passed. Opening home page..."));
+      verify(desktop).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePageAsync_shouldSkipHealthCheckWhenEndpointIsNull() throws Exception {
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+  @Test
+  void doHealthCheckThenOpenHomePageAsync_shouldNotOpenBrowserWhenHealthCheckFails()
+      throws Exception {
+    // Setup WireMock to return 503 Service Unavailable
+    wireMockServer.stubFor(
+        get(urlEqualTo("/health"))
+            .willReturn(
+                aResponse()
+                    .withStatus(503)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{\"status\":\"DOWN\"}")));
 
-            CompletableFuture<Void> future = JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
-                null, "https://example.com"
-            );
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-            future.get(5, TimeUnit.SECONDS);
+      CompletableFuture<Void> future =
+          JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
+              "http://localhost:8088/health", "https://example.com");
 
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check endpoint is null or empty. Skipping health check."));
-            verify(desktop).browse(any());
-        }
+      future.get(5, TimeUnit.SECONDS);
+
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check failed with status code: 503"));
+      verify(desktop, never()).browse(any());
     }
+  }
 
-    @Test
-    void doHealthCheckThenOpenHomePageAsync_shouldOpenBrowserWhenHealthCheckPasses() throws Exception {
-        // Setup WireMock to return 200 OK
-        wireMockServer.stubFor(get(urlEqualTo("/health"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"status\":\"UP\"}")));
+  @Test
+  void doHealthCheckThenOpenHomePageAsync_shouldHandleNetworkExceptions() throws Exception {
+    // Don't stub anything, so connection will fail
+    try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
+      Desktop desktop = mock(Desktop.class);
+      desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
+      desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
+      when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
 
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
+      CompletableFuture<Void> future =
+          JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
+              "http://localhost:9999/health", "https://example.com");
 
-            CompletableFuture<Void> future = JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
-                "http://localhost:8088/health", 
-                "https://example.com"
-            );
+      future.get(5, TimeUnit.SECONDS);
 
-            future.get(5, TimeUnit.SECONDS);
-
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check passed. Opening home page..."));
-            verify(desktop).browse(any());
-        }
+      String output = outputStreamCaptor.toString();
+      assertTrue(output.contains("Health check failed with exception:"));
+      // Should not open browser due to connection failure
+      verify(desktop, never()).browse(any());
     }
-
-    @Test
-    void doHealthCheckThenOpenHomePageAsync_shouldNotOpenBrowserWhenHealthCheckFails() throws Exception {
-        // Setup WireMock to return 503 Service Unavailable
-        wireMockServer.stubFor(get(urlEqualTo("/health"))
-            .willReturn(aResponse()
-                .withStatus(503)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{\"status\":\"DOWN\"}")));
-
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
-
-            CompletableFuture<Void> future = JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
-                "http://localhost:8088/health", 
-                "https://example.com"
-            );
-
-            future.get(5, TimeUnit.SECONDS);
-
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check failed with status code: 503"));
-            verify(desktop, never()).browse(any());
-        }
-    }
-
-    @Test
-    void doHealthCheckThenOpenHomePageAsync_shouldHandleNetworkExceptions() throws Exception {
-        // Don't stub anything, so connection will fail
-        try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
-            Desktop desktop = mock(Desktop.class);
-            desktopMock.when(Desktop::isDesktopSupported).thenReturn(true);
-            desktopMock.when(Desktop::getDesktop).thenReturn(desktop);
-            when(desktop.isSupported(Desktop.Action.BROWSE)).thenReturn(true);
-
-            CompletableFuture<Void> future = JavaBrowserLauncher.doHealthCheckThenOpenHomePageAsync(
-                "http://localhost:9999/health", 
-                "https://example.com"
-            );
-
-            future.get(5, TimeUnit.SECONDS);
-
-            String output = outputStreamCaptor.toString();
-            assertTrue(output.contains("Health check failed with exception:"));
-            // Should not open browser due to connection failure
-            verify(desktop, never()).browse(any());
-        }
-    }
+  }
 }

@@ -340,6 +340,47 @@
           <publishingServerId>central</publishingServerId>
         </configuration>
       </plugin>
+
+      <!-- Spotless for code formatting -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+        <version>2.46.1</version>
+        <configuration>
+          <!-- Java files formatting (if any) -->
+          <java>
+            <includes>
+              <include>src/main/java/**/*.java</include>
+              <include>src/test/java/**/*.java</include>
+            </includes>
+            <excludes>
+              <exclude>src/main/java/**/package-info.kt</exclude>
+              <exclude>src/test/java/**/package-info.kt</exclude>
+            </excludes>
+            <!-- Use Google Java format -->
+            <googleJavaFormat>
+              <version>1.28.0</version>
+              <style>GOOGLE</style>
+            </googleJavaFormat>
+            <removeUnusedImports />
+            <trimTrailingWhitespace />
+            <endWithNewline />
+            <licenseHeader>
+              <file>${project.basedir}/src/main/resources/license-header.txt</file>
+            </licenseHeader>
+          </java>
+
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+              <goal>apply</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

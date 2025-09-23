@@ -42,7 +42,7 @@ jobs:
         continue-on-error: true
 
       - name: Generate test report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@v2.1.1
         if: success() || failure()
         with:
           name: Test Results (${{ matrix.os }}, Java ${{ matrix.java }})
@@ -51,7 +51,7 @@ jobs:
           fail-on-error: false
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results-${{ matrix.os }}-java${{ matrix.java }}
@@ -126,7 +126,7 @@ jobs:
         run: mvn clean package -DskipTests -B
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
@@ -159,7 +159,7 @@ jobs:
         run: mvn clean verify -B -Djava.awt.headless=true -Dtest="**/*IntegrationTest,**/*EndToEndTest" -Dmaven.test.failure.ignore=true
 
       - name: Upload integration test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: integration-test-results
@@ -191,7 +191,7 @@ jobs:
         run: mvn clean test -B -Djava.awt.headless=true -Dtest="**/*PerformanceTest" -Dmaven.test.failure.ignore=true
 
       - name: Upload performance test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-test-results
@@ -223,7 +223,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload security scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan-results
