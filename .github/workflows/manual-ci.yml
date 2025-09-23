@@ -55,11 +55,11 @@ jobs:
       - name: Run tests with selected profile
         run: |
           if [ "${{ inputs.test_profile }}" == "all" ]; then
-            mvn clean test -B -Djava.awt.headless=true -Dmaven.test.failure.ignore=true
+            mvn clean test -B "-Djava.awt.headless=true" "-Dmaven.test.failure.ignore=true"
           elif [ "${{ inputs.test_profile }}" == "stable" ]; then
-            mvn clean test -B -Djava.awt.headless=true -Pstable
+            mvn clean test -B "-Djava.awt.headless=true" "-Pstable"
           elif [ "${{ inputs.test_profile }}" == "ci" ]; then
-            mvn clean test -B -Djava.awt.headless=true -Dci=true
+            mvn clean test -B "-Djava.awt.headless=true" "-Dci=true"
           fi
         shell: bash
 
