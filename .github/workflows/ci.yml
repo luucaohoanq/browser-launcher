@@ -237,7 +237,7 @@ jobs:
 
     steps:
       - name: Download all test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
