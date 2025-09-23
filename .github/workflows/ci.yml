@@ -32,7 +32,7 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -87,7 +87,7 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -120,7 +120,7 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -153,7 +153,7 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -185,14 +185,14 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run performance tests
-        run: mvn clean test -B "-Djava.awt.headless=true" -Dtest="**/*PerformanceTest" "-Dmaven.test.failure.ignore=true"
+        run: mvn clean test -B "-Djava.awt.headless=true" "-Dtest="**/*PerformanceTest" "-Dmaven.test.failure.ignore=true"
 
       - name: Upload performance test results
         uses: actions/upload-artifact@v4
@@ -216,7 +216,7 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -247,7 +247,9 @@ jobs:
         uses: mikepenz/action-junit-report@v4
         if: always()
         with:
-          report_paths: "**/target/surefire-reports/TEST-*.xml"
+          report_paths: |
+            **/target/surefire-reports/TEST-*.xml
+            **/target/failsafe-reports/TEST-*.xml
           check_name: "Test Results Summary"
           fail_on_failure: true
           require_tests: true
