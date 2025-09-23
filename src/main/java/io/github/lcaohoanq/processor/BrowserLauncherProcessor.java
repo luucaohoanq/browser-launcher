@@ -27,46 +27,7 @@ public class BrowserLauncherProcessor implements ApplicationRunner {
     // System.out.println("BrowserLauncherProcessor started - analyzing application for
     // @BrowserLauncher annotation");
 
-    // Get main class from Spring Boot application context
-    String mainClassName = null;
-    try {
-      // Look for the main application class in the context
-      // The main class is typically the one with @SpringBootApplication
-      String[] beanNames = applicationContext.getBeanNamesForType(Object.class);
-      for (String beanName : beanNames) {
-        Object bean = applicationContext.getBean(beanName);
-        Class<?> beanClass = bean.getClass();
-
-        // Handle CGLIB proxies - get the original class
-        if (beanClass.getName().contains("$$")) {
-          // This is a CGLIB proxy, get the superclass
-          beanClass = beanClass.getSuperclass();
-        }
-
-        // Check if this is likely the main application class
-        if (beanClass.getAnnotation(
-                org.springframework.boot.autoconfigure.SpringBootApplication.class)
-            != null) {
-          mainClassName = beanClass.getName();
-          break;
-        }
-      }
-    } catch (Exception e) {
-      // System.out.println("Could not get main class from Spring context, trying stack trace
-      // approach: " + e.getMessage());
-      e.printStackTrace();
-    }
-
-    // Fallback to stack trace approach if Spring context approach fails
-    if (mainClassName == null) {
-      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-      mainClassName =
-          Arrays.stream(stackTrace)
-              .filter(element -> "main".equals(element.getMethodName()))
-              .findFirst()
-              .map(StackTraceElement::getClassName)
-              .orElse(null);
-    }
+    String mainClassName = detectMainClassName();
 
     // System.out.println("Main class detected: " + mainClassName);
 
@@ -144,8 +105,7 @@ public class BrowserLauncherProcessor implements ApplicationRunner {
 
           // System.out.println("Browser launcher executed for " + urls.length + " URL(s)");
         } else {
-          // System.out.println("Skipping browser launch due to profile exclusion: " +
-          // Arrays.toString(activeProfiles));
+          System.out.println("Skipping browser launch due to profile exclusion.");
         }
       } else {
         // System.out.println("No @BrowserLauncher annotation found on main class");
@@ -154,5 +114,56 @@ public class BrowserLauncherProcessor implements ApplicationRunner {
       System.err.println("Error in browser launcher processor: " + e.getMessage());
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Detects the main class name by first checking the Spring context, then falling back to stack
+   * trace analysis. This method is protected to allow for testing overrides.
+   *
+   * @return the main class name, or null if not found
+   */
+  protected String detectMainClassName() {
+    // Get main class from Spring Boot application context
+    String mainClassName = null;
+    try {
+      // Look for the main application class in the context
+      // The main class is typically the one with @SpringBootApplication
+      String[] beanNames = applicationContext.getBeanNamesForType(Object.class);
+      for (String beanName : beanNames) {
+        Object bean = applicationContext.getBean(beanName);
+        Class<?> beanClass = bean.getClass();
+
+        // Handle CGLIB proxies - get the original class
+        if (beanClass.getName().contains("$$")) {
+          // This is a CGLIB proxy, get the superclass
+          beanClass = beanClass.getSuperclass();
+        }
+
+        // Check if this is likely the main application class
+        if (beanClass.getAnnotation(
+                org.springframework.boot.autoconfigure.SpringBootApplication.class)
+            != null) {
+          mainClassName = beanClass.getName();
+          break;
+        }
+      }
+    } catch (Exception e) {
+      // System.out.println("Could not get main class from Spring context, trying stack trace
+      // approach: " + e.getMessage());
+      e.printStackTrace();
+    }
+
+    // Fallback to stack trace approach if Spring context approach fails
+    if (mainClassName == null) {
+      StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+      mainClassName =
+          Arrays.stream(stackTrace)
+              .filter(element -> "main".equals(element.getMethodName()))
+              .findFirst()
+              .map(StackTraceElement::getClassName)
+              .orElse(null);
+    }
+
+    return mainClassName;
   }
 }
