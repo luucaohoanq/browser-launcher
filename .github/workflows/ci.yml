@@ -65,7 +65,7 @@ jobs:
 
       - name: Comment test results on PR
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && runner.os == 'Linux'
         with:
           files: |
             target/surefire-reports/*.xml
