@@ -46,7 +46,7 @@ jobs:
           distribution: "temurin"
 
       - name: Cache Maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -55,11 +55,11 @@ jobs:
       - name: Run tests with selected profile
         run: |
           if [ "${{ inputs.test_profile }}" == "all" ]; then
-            mvn clean test -B -Djava.awt.headless=true -Dmaven.test.failure.ignore=true
+            mvn clean test -B "-Djava.awt.headless=true" "-Dmaven.test.failure.ignore=true"
           elif [ "${{ inputs.test_profile }}" == "stable" ]; then
-            mvn clean test -B -Djava.awt.headless=true -Pstable
+            mvn clean test -B "-Djava.awt.headless=true" "-Pstable"
           elif [ "${{ inputs.test_profile }}" == "ci" ]; then
-            mvn clean test -B -Djava.awt.headless=true -Dci=true
+            mvn clean test -B "-Djava.awt.headless=true" "-Dci=true"
           fi
         shell: bash
 
@@ -73,7 +73,7 @@ jobs:
           fail-on-error: false
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: manual-test-results-${{ inputs.os }}-java${{ inputs.java_version }}-${{ inputs.test_profile }}
