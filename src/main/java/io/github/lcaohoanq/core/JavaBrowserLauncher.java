@@ -89,14 +89,24 @@ public class JavaBrowserLauncher {
 
     return HTTP_CLIENT
         .sendAsync(request, HttpResponse.BodyHandlers.ofString())
-        .thenAccept(
+        .thenCompose(
             response -> {
               if (response.statusCode() == 200) {
                 System.out.println("Health check passed. Opening home page...");
                 openHomePage(urls);
+                // Add a small delay to ensure browser opening completes
+                return CompletableFuture.runAsync(
+                    () -> {
+                      try {
+                        Thread.sleep(50); // Small delay to ensure desktop operations complete
+                      } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                      }
+                    });
               } else {
                 System.out.println(
                     "Health check failed with status code: " + response.statusCode());
+                return CompletableFuture.completedFuture(null);
               }
             })
         .exceptionally(
