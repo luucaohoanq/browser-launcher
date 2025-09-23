@@ -11,6 +11,10 @@ jobs:
   spotless-check:
     name: Code Formatting Check
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout code
