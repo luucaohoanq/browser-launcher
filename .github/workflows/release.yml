@@ -28,7 +28,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run full test suite
-        run: mvn clean test -B -Djava.awt.headless=true
+        run: mvn clean test -B "-Djava.awt.headless=true"
 
       - name: Build and package
         run: mvn clean package -DskipTests -B
