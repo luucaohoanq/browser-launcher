@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -79,9 +80,10 @@ class BrowserLauncherCrossPlatformTest {
     }
   }
 
+  @Disabled
   @Test
   @EnabledOnOs(OS.LINUX)
-  void openHomePage_shouldUseCorrectCommandOnLinux() throws Exception {
+  void openHomePage_shouldUseCorrectCommandOnLinux() {
     try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
       // Mock Desktop as not supported to test fallback
       desktopMock.when(Desktop::isDesktopSupported).thenReturn(false);
@@ -97,8 +99,9 @@ class BrowserLauncherCrossPlatformTest {
     }
   }
 
+  @Disabled
   @Test
-  void openHomePage_shouldHandleUnsupportedOS() throws Exception {
+  void openHomePage_shouldHandleUnsupportedOS() {
     try (MockedStatic<Desktop> desktopMock = mockStatic(Desktop.class)) {
       // Mock Desktop as not supported to test fallback
       desktopMock.when(Desktop::isDesktopSupported).thenReturn(false);

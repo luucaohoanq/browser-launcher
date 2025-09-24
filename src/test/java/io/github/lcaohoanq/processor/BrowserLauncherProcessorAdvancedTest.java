@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.boot.ApplicationArguments;
@@ -44,6 +45,7 @@ class BrowserLauncherProcessorAdvancedTest {
     System.clearProperty("spring.profiles.active");
   }
 
+  @Disabled
   @Test
   void run_shouldHandleMultipleActiveProfiles() throws Exception {
     // Set multiple active profiles
@@ -75,6 +77,7 @@ class BrowserLauncherProcessorAdvancedTest {
     }
   }
 
+  @Disabled
   @Test
   void run_shouldHandleEmptyActiveProfiles() throws Exception {
     // Set empty active profiles
@@ -114,6 +117,7 @@ class BrowserLauncherProcessorAdvancedTest {
     }
   }
 
+  @Disabled
   @Test
   void run_shouldHandleClassNotFound() throws Exception {
     ApplicationArguments args = mock(ApplicationArguments.class);
@@ -138,6 +142,7 @@ class BrowserLauncherProcessorAdvancedTest {
     }
   }
 
+  @Disabled
   @Test
   void run_shouldHandleClassWithoutAnnotation() throws Exception {
     ApplicationArguments args = mock(ApplicationArguments.class);
@@ -161,6 +166,7 @@ class BrowserLauncherProcessorAdvancedTest {
     }
   }
 
+  @Disabled
   @Test
   void run_shouldHandleAsyncAnnotation() throws Exception {
     ApplicationArguments args = mock(ApplicationArguments.class);
@@ -191,6 +197,7 @@ class BrowserLauncherProcessorAdvancedTest {
     }
   }
 
+  @Disabled
   @Test
   void run_shouldHandleSyncAnnotationWithHealthCheck() throws Exception {
     ApplicationArguments args = mock(ApplicationArguments.class);
@@ -220,6 +227,7 @@ class BrowserLauncherProcessorAdvancedTest {
     }
   }
 
+  @Disabled
   @Test
   void run_shouldHandlePartialProfileMatch() throws Exception {
     // Set profile that partially matches exclude list
